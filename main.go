@@ -6,15 +6,27 @@ import (
 	"github.com/robfig/config"
 	"os/exec"
 	"strings"
+	"io/ioutil"
 )
 
 func main() {
+	// 获取程序的配置
 	c, _ := config.ReadDefault("./config.conf")
 	sleepTime, _ := c.Int("", "sleep");
-	daemonCheck("frps_ssh.ini", "nohup /usr/local/frp/frps -c /usr/local/frp/frps_ssh.ini > myout.file 2>&1 &")
+	//daemonCheck("frps_ssh.ini", "nohup /usr/local/frp/frps -c /usr/local/frp/frps_ssh.ini > myout.file 2>&1 &")
 	for true {
+		files, _ := ioutil.ReadDir("./process")
+		for _, file := range files {
+			if (!strings.HasSuffix(file.Name(), ".conf")) {
+				continue
+			}
+
+			configSubProcess, _ := config.ReadDefault("./process/" + file.Name())
+			keyword, _ := configSubProcess.String("", "keyword")
+			execShell, _ := configSubProcess.String("", "exec-shell")
+			daemonCheck(keyword, execShell)
+		}
 		time.Sleep(time.Second * time.Duration(sleepTime))
-		fmt.Println("输出走一波")
 	}
 }
 
