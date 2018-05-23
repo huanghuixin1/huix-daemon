@@ -6,4 +6,6 @@
 
 
 ### 启动程序
+```
 nohup ./huix-daemon > /var/logs/huix-daemon 2>&1 &
+```

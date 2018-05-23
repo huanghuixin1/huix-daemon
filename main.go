@@ -2,19 +2,30 @@ package main
 
 import (
 	"fmt"
+	"time"
+	"github.com/robfig/config"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 func main() {
-	for true  {
-		fmt.Println("无线打印")
-		time.Sleep(time.Second * 5)
+	c, _ := config.ReadDefault("./config.conf")
+	sleepTime, _ := c.Int("", "sleep");
+	daemonCheck("frps_ssh.ini", "nohup /usr/local/frp/frps -c /usr/local/frp/frps_ssh.ini > myout.file 2>&1 &")
+	for true {
+		time.Sleep(time.Second * time.Duration(sleepTime))
+		fmt.Println("输出走一波")
 	}
+}
 
+/**
+keyword 关键字
+startShell 启动命令
+logFilePath 日志存放目录
+ */
+func daemonCheck(keyword string, startShell string) {
 	fmt.Println("开始执行")
-	ret := exec.Command("bash", "-c", "ps -ef | grep frps_ssh")
+	ret := exec.Command("bash", "-c", fmt.Sprintf("ps -ef | grep %s", keyword))
 	//ret := exec.Command("ipconfig")
 	retBytes, err := ret.Output()
 	if (err != nil) {
@@ -25,11 +36,11 @@ func main() {
 	retStr := string(retBytes)
 	fmt.Println(retStr)
 
-	if (strings.Index(retStr, "/usr/local/frp/frps -c /usr/local/frp/frps_ssh.ini") > -1 || strings.Index(retStr, "frps -c frps_ssh.ini") > -1) {
-		fmt.Println("存在ssh frp进程")
+	if (strings.Count(retStr, keyword) >= 3) {
+		fmt.Println("已存在", keyword, "进程")
 	} else {
-		fmt.Println("不存在frp进程 需要重新启动")
-		retFrp := exec.Command("bash", "-c", "nohup /usr/local/frp/frps -c /usr/local/frp/frps_ssh.ini > myout.file 2>&1 &")
+		fmt.Println("不存在", keyword, " 需要重新启动")
+		retFrp := exec.Command("bash", "-c", startShell)
 		retFrpBytes, errFrp := retFrp.Output()
 
 		if (errFrp != nil) {

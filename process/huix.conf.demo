@@ -1,0 +1,2 @@
+keyword=frps_ssh # 进程查找的关键字
+exec-shell=nohup /usr/local/frp/frps -c /usr/local/frp/frps_ssh.ini > myout.file 2>&1 &  // 重新启动进程的命令（一定要有后面的&）
