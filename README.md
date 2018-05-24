@@ -7,5 +7,6 @@
 
 ### 启动程序
 ```
-nohup ./huix-daemon > /var/logs/huix-daemon 2>&1 &
+$ chmod +x ./huix-daemon
+$ nohup ./huix-daemon > /var/logs/huix-daemon 2>&1 &
 ```
